@@ -1,0 +1,29 @@
+<?php
+echo $this->formButton(
+    'add',
+    'Create New Model',
+    array(
+        'onclick' => sprintf(
+            "window.location='%s'",
+            $this->url('spiffyadmin/add', array('model' => $model))
+        )
+    )
+);
+
+echo $this->dataTable(
+    'grid',
+    array(),
+    array(
+        'bStateSave'      => true,
+        'bJQueryUI'       => true,
+        'sPaginationType' => 'full_numbers',
+        
+        'aoColumns' => array(
+            array('sTitle' => 'Name', 'mDataProp' => 'name'),
+            array('sTitle' => 'Edit', 'mDataProp' => 'edit', 'sWidth' => '10%'),
+            array('sTitle' => 'Delete', 'mDataProp' => 'delete', 'sWidth' => '10%'),
+        ),
+        
+        'aaData' => $data
+    )
+);
