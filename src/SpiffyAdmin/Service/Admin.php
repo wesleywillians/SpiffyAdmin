@@ -17,48 +17,54 @@ class Admin
     /**
      * @var Doctrine\ORM\EntityManager
      */
-    protected $em;
+    protected $entityManager;
     
     /**
      * @var SpiffyForm\Form\Manager
      */
-    protected $fm;
+    protected $formManager;
     
     /**
      * @var SpiffyDataTables\Service\Data
      */
     protected $dataService;
     
+    /**
+     * @var array
+     */
     protected $definitions = null;
     
-    public function __construct(EntityManager $em, DataService $dataService, FormManager $formManager)
-    {
-        $this->em = $em;
-        $this->fm = $formManager;
-        $this->dataService = $dataService;
+    public function __construct(
+        EntityManager $entityManager,
+        DataService $dataService,
+        FormManager $formManager
+    ) {
+        $this->entityManager = $entityManager;
+        $this->formManager   = $formManager;
+        $this->dataService   = $dataService;
     }
     
     public function save($entity)
     {
-        $this->em->persist($entity);
-        $this->em->flush();
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
     }
     
     public function getFormManager($name, $id = null)
     {
         $def = $this->getDefinition($name);
         
-        $this->fm->setEntityManager($this->em);
+        $this->formManager->setEntityManager($this->entityManager);
         
         if (null !== $id) {
-             $this->fm->setData($this->getEntity($name, $id));
+             $this->formManager->setData($this->getEntity($name, $id));
         } else {
             $class = $def->options()->getDataClass();
-            $this->fm->setData(new $class);
+            $this->formManager->setData(new $class);
         }
              
         // populate form fields
-        $reflClass = new ReflectionClass($this->fm->getData());
+        $reflClass = new ReflectionClass($this->formManager->getData());
         foreach($reflClass->getProperties() as $reflProp) {
             $opts    = array();
             $defOpts = $def->options()->getElementOptions();
@@ -66,27 +72,32 @@ class Admin
             if (isset($defOpts[$reflProp->getName()])) {
                 $opts = $defOpts[$reflProp->getName()];
             }
-            $this->fm->add($reflProp->getName(), null, $opts);
+            $this->formManager->add($reflProp->getName(), null, $opts);
         }
          
-        $this->fm->add('submit');
+        $this->formManager->add('submit');
              
-        return $this->fm;
+        return $this->formManager;
     }
     
     public function getEntity($name, $id)
     {
         $def = $this->getDefinition($name);
-        return $this->em->find($def->options()->getDataClass(), $id);
+        return $this->entityManager->find($def->options()->getDataClass(), $id);
     }
     
     public function getViewData($name)
     {
-        $def  = $this->getDefinition($name);
+        $def = $this->getDefinition($name);
         
-        $qb = $this->em->createQueryBuilder();
-        $qb->select('q')
-           ->from($def->options()->getDataClass(), 'q');
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->from($def->options()->getDataClass(), 'q');
+        
+        if (count($def->options()->getViewProperties()) > 0) {
+            $qb->select('partial q.{' . implode(',', array_keys($def->options()->getViewProperties())) . '}');
+        } else {
+            $qb->select('q');
+        }
         
         $data = $qb->getQuery()->execute(array(), Query::HYDRATE_ARRAY);
         
@@ -141,7 +152,7 @@ class Admin
     public function setDefinitions()
     {
         $definitions = array();
-        $config = SpiffyAdmin::getOption('definitions')->toArray();
+        $config      = SpiffyAdmin::getOption('definitions')->toArray();
         foreach($config as &$def) {
             if (is_string($def)) {
                 $def = new $def;
@@ -163,6 +174,30 @@ class Admin
                 throw new InvalidArgumentException('data_class is required');
             }
             
+            $mdata = $this->entityManager->getClassMetadata($def->options()->getDataClass());
+
+            // set properties
+            $properties = count($def->options()->getViewProperties()) ? 
+                $def->options()->getViewProperties() : 
+                array_keys($mdata->fieldNames);
+                
+            foreach($properties as $name => $options) {
+                if (is_string($options)) {
+                    unset($properties[$name]);
+                    
+                    $name    = $options;
+                    $options = array();
+                }
+                
+                if (!isset($options['label'])) {
+                    $options['label'] = ucfirst($name);
+                }
+                $options['property'] = $name;
+                
+                $properties[$name] = $options;
+            }
+            
+            $def->options()->setViewProperties($properties);
             $definitions[$def->getName()] = $def;
         }
         

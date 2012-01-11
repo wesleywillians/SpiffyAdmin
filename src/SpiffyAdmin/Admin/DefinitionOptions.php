@@ -30,6 +30,16 @@ class DefinitionOptions extends Options
      * @var array
      */
     protected $elementOptions;
+    
+    /**
+     * @var array
+     */
+    protected $viewProperties = array();
+    
+    /**
+     * @var array
+     */
+    protected $formProperties = array();
 
 	/**
      * Get dataClass
@@ -138,6 +148,50 @@ class DefinitionOptions extends Options
     public function setElementOptions(array $elementOptions)
     {
         $this->elementOptions = $elementOptions;
+        return $this;
+    }
+
+	/**
+     * Get viewProperties
+     *
+     * @return array
+     */
+    public function getViewProperties()
+    {
+        return $this->viewProperties;
+    }
+
+	/**
+     * Set viewProperties
+     *
+     * @param array $viewProperties
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setViewProperties($viewProperties)
+    {
+        $this->viewProperties = $viewProperties;
+        return $this;
+    }
+
+	/**
+     * Get formProperties
+     *
+     * @return array
+     */
+    public function getFormProperties()
+    {
+        return $this->formProperties;
+    }
+
+	/**
+     * Set formProperties
+     *
+     * @param array $formProperties
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setFormProperties($formProperties)
+    {
+        $this->formProperties = $formProperties;
         return $this;
     }
 }

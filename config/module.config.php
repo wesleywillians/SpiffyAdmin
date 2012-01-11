@@ -1,7 +1,14 @@
 <?php
 return array(
     'spiffyadmin' => array(
+        'auth_required' => false,
+        'auth_service' => 'zfcuser_auth_service',
+        'acl_name' => 'Zend\Acl\Acl',
+        'acl_resource' => 'admin',
+        
         'definitions' => array(
+            'Application\Admin\Developer',
+            'Application\Admin\Game',
             'Application\Admin\Profile',
             'Application\Admin\Team',
         )
@@ -19,9 +26,9 @@ return array(
             
             'spiffyadmin_admin_service' => array(
                 'parameters' => array(
-                    'em'          => 'doctrine_em',
-                    'dataService' => 'spiffydatatables_data_service',
-                    'formManager' => 'spiffy_form_doctrine',
+                    'entityManager' => 'doctrine_em',
+                    'dataService'   => 'spiffydatatables_data_service',
+                    'formManager'   => 'spiffy_form_doctrine',
                 )
             ),
             

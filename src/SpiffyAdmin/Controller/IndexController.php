@@ -2,12 +2,31 @@
 
 namespace SpiffyAdmin\Controller;
 
-use Zend\Mvc\Controller\ActionController;
+use RuntimeException,
+    SpiffyAdmin\Module as SpiffyAdmin,
+    Zend\Mvc\Controller\ActionController;
 
 class IndexController extends ActionController
 {
+    protected function checkAcl()
+    {
+        if (!SpiffyAdmin::getOption('auth_required')) {
+            return;
+        }
+        
+        $auth = $this->getLocator()->get(SpiffyAdmin::getOption('auth_service'));
+        $acl  = $this->getLocator()->get(SpiffyAdmin::getOption('acl_name'));
+        
+        $resource = SpiffyAdmin::getOption('acl_resource');
+        if (!$acl->hasResource($resource) || !$acl->isAllowed($auth->getIdentity(), $resource, 'read')) {
+            throw new RuntimeException('access denied');
+        }
+    }
+    
     public function indexAction()
     {
+        $this->checkAcl();
+        
         $admin = $this->getLocator()->get('spiffyadmin_admin_service');
         return array('definitions' => $admin->getDefinitions());
     }
@@ -32,7 +51,8 @@ class IndexController extends ActionController
         }
         
         return array(
-            'form' => $manager->getForm()
+            'definition' => $admin->getDefinition($match->getParam('model')),
+            'form'       => $manager->getForm()
         );
     }
     
@@ -57,7 +77,8 @@ class IndexController extends ActionController
         }
         
         return array(
-            'form' => $manager->getForm()
+            'definition' => $admin->getDefinition($match->getParam('model')),
+            'form'       => $manager->getForm()
         );
     }
     
