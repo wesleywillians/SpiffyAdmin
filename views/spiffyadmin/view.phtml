@@ -10,6 +10,18 @@ echo $this->formButton(
         )
     )
 );
+echo '&nbsp;&nbsp;';
+echo $this->formButton(
+    'back',
+    'Back To List',
+    array(
+        'class' => 'btn large',
+        'onclick' => sprintf(
+            "window.location='%s'",
+            $this->url('spiffyadmin', array('model' => $model))
+        )
+    )
+);
 
 $columns = array();
 foreach($definition->options()->getViewProperties() as $property => $options) {

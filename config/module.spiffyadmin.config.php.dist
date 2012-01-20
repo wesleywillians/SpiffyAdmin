@@ -1,0 +1,58 @@
+ <?php
+ /**
+  * SpiffyAdmin Configuration
+  *
+  * If you have a ./configs/autoload/ directory set up for your project, you can 
+  * drop this config file in it and change the values as you wish. This file is intended
+  * to be used with a standard SpiffyAdmin setup. If you have something more advanced
+  * you may override the Zend\Di configuration manually (see module.config.php).
+  */
+$settings = array(
+    /**
+     * An array of strings defining the class names of all admin definitions.
+     */
+    'definitions' => array(
+        'Application\Admin\Developer',
+        'Application\Admin\Game',
+        'Application\Admin\Genre',
+        'Application\Admin\Platform',
+    ),
+    
+    /**
+     * The type of database you are using which will setup the form manager and mapper to use. 
+     * Currently, only one type at a time is supported.
+     * One of: 'zend', 'spiffyadmin_orm_mapper', or 'spiffyadmin_mongo_mapper'
+     */
+    'mapper' => 'spiffyadmin_mongo_mapper',
+    
+    /**
+     * The manager to use if above is set to 'doctrine_orm' or 'doctrine_mongo'. Should be
+     * the alias name of either the EntityManager or DocumentManager.
+     * 
+     * For the official DoctrineModule the defaults are 'doctrine_em' and 'mongo_dm' respectively.
+     */
+    'doctrine_manager' => 'mongo_dm',
+);
+
+/**
+ * YOU DO NOT NEED TO EDIT BELOW THIS LINE.
+ */
+return array(
+    'spiffyadmin' => array(
+        'definitions' => $settings['definitions'],
+    ),
+    'di' => array(
+        'instance' => array(
+            'spiffyadmin_mongo_mapper' => array(
+                'parameters' => array(
+                    'dm' => $settings['doctrine_manager'],
+                )
+            ),
+            'spiffyadmin_manager' => array(
+                'parameters' => array(
+                    'mapper' => $settings['mapper']
+                )
+            ),
+        )
+    )
+);

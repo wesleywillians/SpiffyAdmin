@@ -4,7 +4,8 @@ Version 0.0.1
 
 Introduction
 ------------
-SpiffyAdmin is a module for Zend Framework 2.
+SpiffyAdmin is a module for Zend Framework 2. This module is still under heavy development - use at 
+your own risk.
 
 Example Definition
 ------------------

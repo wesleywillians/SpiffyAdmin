@@ -1,28 +1,23 @@
 <?php
 
-namespace SpiffyAdmin\Service;
+namespace SpiffyAdmin;
 
 use InvalidArgumentException,
     ReflectionClass,
     Traversable,
-    Doctrine\ORM\EntityManager,
     Doctrine\ORM\Query,
     SpiffyAdmin\Admin\Definition,
     SpiffyAdmin\Module as SpiffyAdmin,
+    SpiffyAdmin\Mapper\MapperInterface,
     SpiffyDataTables\Service\Data as DataService,
-    SpiffyForm\Form\Manager as FormManager;
+    SpiffyForm\Form\Builder;
 
-class Admin
+class Manager
 {
     /**
-     * @var Doctrine\ORM\EntityManager
+     * @var array
      */
-    protected $entityManager;
-    
-    /**
-     * @var SpiffyForm\Form\Manager
-     */
-    protected $formManager;
+    protected $builders = array();
     
     /**
      * @var SpiffyDataTables\Service\Data
@@ -34,92 +29,95 @@ class Admin
      */
     protected $definitions = null;
     
-    public function __construct(
-        EntityManager $entityManager,
-        DataService $dataService,
-        FormManager $formManager
-    ) {
-        $this->entityManager = $entityManager;
-        $this->formManager   = $formManager;
-        $this->dataService   = $dataService;
+    public function __construct(MapperInterface $mapper, DataService $dataService) 
+    {
+        $this->mapper      = $mapper;
+        $this->dataService = $dataService;
     }
     
-    public function save($entity)
+    public function save($name, $object)
     {
-        $this->entityManager->persist($entity);
-        $this->entityManager->flush();
+        $this->mapper->save($this->getDefinition($name), $object);
     }
     
-    public function getFormManager($name, $id = null)
+    public function getFormBuilder($name, $id = null)
     {
-        $def = $this->getDefinition($name);
-        
-        $this->formManager->setEntityManager($this->entityManager);
-        
-        if (null !== $id) {
-             $this->formManager->setData($this->getEntity($name, $id));
-        } else {
-            $class = $def->options()->getDataClass();
-            $this->formManager->setData(new $class);
-        }
-             
-        // populate form fields
-        $reflClass = new ReflectionClass($this->formManager->getData());
-        foreach($reflClass->getProperties() as $reflProp) {
-            $opts    = array();
-            $defOpts = $def->options()->getElementOptions();
+        if (!isset($this->forms[$name])) {
+            $def     = $this->getDefinition($name);
+            $opts    = $def->options();
+            $builder = $this->mapper->getFormBuilder($def);
             
-            if (isset($defOpts[$reflProp->getName()])) {
-                $opts = $defOpts[$reflProp->getName()];
+            if (null === $id) {
+                $class = $opts->getDataClass();
+                $builder->setData(new $class);             
+            } else {
+                $builder->setData($this->getObject($name, $id));
             }
-            $this->formManager->add($reflProp->getName(), null, $opts);
-        }
-         
-        $this->formManager->add('submit');
+                 
+            // populate form fields
+            $elementOptions = $opts->getElementOptions();
+            $formProperties = $opts->getFormProperties();
+            foreach($def->getReflClass()->getDefaultProperties() as $name => $value) {
+                if ($formProperties && !in_array($name, $formProperties)) {
+                    continue;
+                }
+                
+                $options = array();
+                if (isset($elementOptions[$name])) {
+                    $options = $elementOptions[$name];
+                }
+                $builder->add($name, null, $options);
+            }
              
-        return $this->formManager;
+            $builder->add('submit');
+            $builder->add('cancel', 'submit', array(
+                'label' => 'Discard Changes'
+            ));
+            
+            $this->builders[$name] = $builder;
+        }
+             
+        return $this->builders[$name];
     }
     
-    public function getEntity($name, $id)
+    public function getObject($name, $id)
     {
         $def = $this->getDefinition($name);
-        return $this->entityManager->find($def->options()->getDataClass(), $id);
+        
+        return $this->mapper->findById($def, $id);
     }
     
     public function getViewData($name)
     {
-        $def = $this->getDefinition($name);
+        $def  = $this->getDefinition($name);
+        $opts = $def->options();
+        $data = $this->mapper->getViewData($def);
         
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->from($def->options()->getDataClass(), 'q');
-        
-        if (count($def->options()->getViewProperties()) > 0) {
-            $qb->select('partial q.{' . implode(',', array_keys($def->options()->getViewProperties())) . '}');
-        } else {
-            $qb->select('q');
-        }
-        
-        $data = $qb->getQuery()->execute(array(), Query::HYDRATE_ARRAY);
-        
-        if ($def->options()->getCanEdit()) {
+        if ($opts->getCanEdit()) {
+            $link  = $opts->getEditLink() ? $opts->getEditLink() : sprintf('/admin/%s/%%id%%/edit', $name);
+            $label = $opts->getEditLabel() ? $opts->getEditLabel() : 'Edit';
+             
             $this->dataService->format($data, array(
                'edit' => array(
                     'type' => 'link',
                     'options' => array(
-                        'label' => 'Edit',
-                        'link' => sprintf('/admin/%s/%%id%%/edit', $name)
+                        'label' => $label,
+                        'link' => $link
                     )
                 )
             ));
         }
         
-        if ($def->options()->getCanDelete()) {
+        if ($opts->getCanDelete()) {
+            $link  = $opts->getDeleteLink() ? $opts->getDeleteLink() : sprintf('/admin/%s/%%id%%/delete', $name);
+            $label = $opts->getDeleteLabel() ? $opts->getDeleteLabel() : 'Delete';
+            
             $this->dataService->format($data, array(
                'delete' => array(
                     'type' => 'link',
                     'options' => array(
-                        'label' => 'Delete',
-                        'link' => sprintf('/admin/%s/%%id%%/delete', $name)
+                        'label' => $label,
+                        'link' => $link
                     )
                 )
             ));
@@ -149,11 +147,11 @@ class Admin
         return $this->definitions;
     }
     
-    public function setDefinitions()
+    public function setDefinitions(array $defs = array())
     {
         $definitions = array();
-        $config      = SpiffyAdmin::getOption('definitions')->toArray();
-        foreach($config as &$def) {
+        
+        foreach($defs as &$def) {
             if (is_string($def)) {
                 $def = new $def;
             }
@@ -174,12 +172,10 @@ class Admin
                 throw new InvalidArgumentException('data_class is required');
             }
             
-            $mdata = $this->entityManager->getClassMetadata($def->options()->getDataClass());
-
             // set properties
             $properties = count($def->options()->getViewProperties()) ? 
                 $def->options()->getViewProperties() : 
-                array_keys($mdata->fieldNames);
+                array_keys($def->getReflClass()->getDefaultProperties());
                 
             foreach($properties as $name => $options) {
                 if (is_string($options)) {

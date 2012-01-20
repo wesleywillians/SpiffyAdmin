@@ -1,16 +1,7 @@
 <?php
 return array(
     'spiffyadmin' => array(
-        'auth_required' => false,
-        'auth_service' => 'zfcuser_auth_service',
-        'acl_name' => 'Zend\Acl\Acl',
-        'acl_resource' => 'admin',
-        
         'definitions' => array(
-            'Application\Admin\Developer',
-            'Application\Admin\Game',
-            'Application\Admin\Profile',
-            'Application\Admin\Team',
         )
     ),
     
@@ -18,20 +9,37 @@ return array(
         'instance' => array(
             'alias' => array(
                 // controllers
-                'spiffyadmin' => 'SpiffyAdmin\Controller\IndexController',
+                'spiffyadmin'      => 'SpiffyAdmin\Controller\IndexController',
+                'spiffyadmin_crud' => 'SpiffyAdmin\Controller\CrudController',
                 
-                // services
-                'spiffyadmin_admin_service' => 'SpiffyAdmin\Service\Admin',
+                // managers
+                'spiffyadmin_manager' => 'SpiffyAdmin\Manager',
+                
+				// mappers
+				'spiffyadmin_mongo_mapper' => 'SpiffyAdmin\Mapper\DoctrineMongoODM',
             ),
-            
-            'spiffyadmin_admin_service' => array(
+            'spiffyadmin_mongo_mapper' => array(
                 'parameters' => array(
-                    'entityManager' => 'doctrine_em',
-                    'dataService'   => 'spiffydatatables_data_service',
-                    'formManager'   => 'spiffy_form_doctrine',
+                    'dm'      => 'mongo_dm',
+                    'builder' => 'spiffyform_builder_mongo',
                 )
             ),
-            
+            'spiffyadmin' => array(
+                'parameters' => array(
+                    'adminManager' => 'spiffyadmin_manager'
+                )
+            ),
+            'spiffyadmin_crud' => array(
+                'parameters' => array(
+                    'adminManager' => 'spiffyadmin_manager'
+                )
+            ),
+            'spiffyadmin_manager' => array(
+                'parameters' => array(
+                    'mapper'      => 'spiffyadmin_mongo_mapper',
+                    'dataService' => 'spiffydatatables_data_service'
+                )
+            ),
             'Zend\View\PhpRenderer' => array(
                 'parameters' => array(
                     'options' => array(
@@ -58,8 +66,8 @@ return array(
                 'view' => array(
                     'type' => 'regex',
                     'options' => array(
-                        'regex' => '/view/(?P<model>\w+)',
-                        'spec' => '/view/%model%',
+                        'regex' => '/(?P<model>\w+)',
+                        'spec' => '/%model%',
                         'defaults' => array(
                             'controller' => 'spiffyadmin',
                             'action'     => 'view'
@@ -69,7 +77,7 @@ return array(
                 'add' => array(
                     'type' => 'regex',
                     'options' => array(
-                        'regex' => '/(?P<model>\w+)/add',
+                        'regex' => '/(?P<model>[\d\w]+)/add',
                         'spec' => '/%model%/add',
                         'defaults' => array(
                             'controller' => 'spiffyadmin',
@@ -80,11 +88,22 @@ return array(
                 'edit' => array(
                     'type' => 'regex',
                     'options' => array(
-                        'regex' => '/(?P<model>\w+)/(?P<id>\d+)/edit',
+                        'regex' => '/(?P<model>\w+)/(?P<id>[\d\w]+)/edit',
                         'spec' => '/%model%/%id%/edit',
                         'defaults' => array(
                             'controller' => 'spiffyadmin',
                             'action'     => 'edit'
+                        ),
+                    ),
+                ),
+                'delete' => array(
+                    'type' => 'regex',
+                    'options' => array(
+                        'regex' => '/(?P<model>\w+)/(?P<id>[\d\w]+)/delete',
+                        'spec' => '/%model%/%id%/delete',
+                        'defaults' => array(
+                            'controller' => 'spiffyadmin',
+                            'action'     => 'delete'
                         ),
                     ),
                 ),

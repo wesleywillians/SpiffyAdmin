@@ -40,6 +40,31 @@ class DefinitionOptions extends Options
      * @var array
      */
     protected $formProperties = array();
+    
+    /**
+     * @var Closure
+     */
+    protected $viewClosure;
+    
+    /**
+     * @var string
+     */
+    protected $editLink;
+    
+    /**
+     * @var string
+     */
+    protected $editLabel;
+
+    /**
+     * @var string
+     */
+    protected $deleteLink;
+    
+    /**
+     * @var string
+     */
+    protected $deleteLabel;
 
 	/**
      * Get dataClass
@@ -192,6 +217,116 @@ class DefinitionOptions extends Options
     public function setFormProperties($formProperties)
     {
         $this->formProperties = $formProperties;
+        return $this;
+    }
+
+	/**
+     * Get viewClosure
+     *
+     * @return Closure
+     */
+    public function getViewClosure()
+    {
+        return $this->viewClosure;
+    }
+
+	/**
+     * Set viewClosure
+     *
+     * @param object $viewClosure
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setViewClosure($viewClosure)
+    {
+        $this->viewClosure = $viewClosure;
+        return $this;
+    }
+
+	/**
+     * Get editLink
+     *
+     * @return string
+     */
+    public function getEditLink()
+    {
+        return $this->editLink;
+    }
+
+	/**
+     * Set editLink
+     *
+     * @param string $editLink
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setEditLink($editLink)
+    {
+        $this->editLink = $editLink;
+        return $this;
+    }
+
+	/**
+     * Get editLabel
+     *
+     * @return string
+     */
+    public function getEditLabel()
+    {
+        return $this->editLabel;
+    }
+
+	/**
+     * Set editLabel
+     *
+     * @param string $editLabel
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setEditLabel($editLabel)
+    {
+        $this->editLabel = $editLabel;
+        return $this;
+    }
+
+	/**
+     * Get deleteLink
+     *
+     * @return string
+     */
+    public function getDeleteLink()
+    {
+        return $this->deleteLink;
+    }
+
+	/**
+     * Set deleteLink
+     *
+     * @param string $deleteLink
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setDeleteLink($deleteLink)
+    {
+        $this->deleteLink = $deleteLink;
+        return $this;
+    }
+
+	/**
+     * Get deleteLabel
+     *
+     * @return string
+     */
+    public function getDeleteLabel()
+    {
+        return $this->deleteLabel;
+    }
+
+	/**
+     * Set deleteLabel
+     *
+     * @param string $deleteLabel
+     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     */
+    public function setDeleteLabel($deleteLabel)
+    {
+        $this->deleteLabel = $deleteLabel;
         return $this;
     }
 }
