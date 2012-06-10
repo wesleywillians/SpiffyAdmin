@@ -15,7 +15,8 @@
         }
     ],
     "require": {
-        "zendframework/zendframework": "dev-master"
+        "zendframework/zendframework": "dev-master",
+        "spiffy/spiffy-data-tables": "dev-master"
     },
     "autoload": {
         "psr-0": {
