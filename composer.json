@@ -1,0 +1,29 @@
+{
+    "name": "spiffy/spiffy-admin",
+    "description": "Zend Framework 2 module that provides an admin interface for managing Doctrine entities (and the db).",
+    "type": "library",
+    "keywords": [
+        "module",
+        "zf2"
+    ],
+    "homepage": "http://www.github.com/SpiffyJr/SpiffyAdmin/",
+    "authors": [
+        {
+            "name": "Kyle Spraggs",
+            "email": "theman@spiffyjr.me",
+            "homepage": "http://www.spiffyjr.me/"
+        }
+    ],
+    "require": {
+        "zendframework/zendframework": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "SpiffyAdmin": "src/"
+        },
+        "classmap": [
+            "./"
+        ]
+    }
+}
+
