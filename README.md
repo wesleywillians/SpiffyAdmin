@@ -17,7 +17,7 @@ Example Definition
 
     class ProfileDefinition extends AbstractDefinition
     {
-        public function getOptions()
+        public function getDefaultOptions()
         {
             return array(
                 'display_name' => 'Profile',

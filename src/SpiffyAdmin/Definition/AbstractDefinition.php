@@ -5,15 +5,12 @@ use InvalidArgumentException;
 
 abstract class AbstractDefinition
 {
-    protected $name;
+    /**
+     * @var \SpiffyAdmin\Definition\Options
+     */
+    protected $options;
 
-    public function __construct(array $options = array())
-    {
-        $this->options = new Options(array_merge($this->getOptions(), $options));
-        $this->validateOptions();
-    }
-
-    abstract public function getOptions();
+    abstract public function getDefaultOptions();
 
     abstract public function getName();
 
@@ -29,6 +26,10 @@ abstract class AbstractDefinition
 
     public function options()
     {
+        if (null === $this->options) {
+            $this->options = new Options($this->getDefaultOptions());
+            $this->validateOptions();
+        }
         return $this->options;
     }
 
