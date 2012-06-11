@@ -2,202 +2,133 @@
 
 namespace SpiffyAdmin;
 
-use InvalidArgumentException,
-    ReflectionClass,
-    Traversable,
-    Doctrine\ORM\Query,
-    SpiffyAdmin\Admin\Definition,
-    SpiffyAdmin\Module as SpiffyAdmin,
-    SpiffyAdmin\Mapper\MapperInterface,
-    SpiffyDataTables\Service\Data as DataService,
-    SpiffyForm\Form\Builder;
+use InvalidArgumentException;
+use SpiffyAdmin\Consumer\AbstractConsumer;
+use SpiffyAdmin\Definition\AbstractDefinition;
+use SpiffyAdmin\FormBuilder\AbstractFormBuilder;
+use SpiffyAdmin\Provider\AbstractProvider;
+use Zend\InputFilter\InputFilter;
+use Zend\Form\Form;
 
 class Manager
 {
     /**
      * @var array
      */
-    protected $builders = array();
-    
+    protected $definitions = array();
+
     /**
-     * @var SpiffyDataTables\Service\Data
+     * @var \SpiffyAdmin\FormBuilder\AbstractFormBuilder
      */
-    protected $dataService;
-    
+    protected $formBuilder;
+
     /**
-     * @var array
+     * @var \SpiffyAdmin\Provider\AbstractProvider
      */
-    protected $definitions = null;
-    
-    public function __construct(MapperInterface $mapper, DataService $dataService) 
+    protected $provider;
+
+    /**
+     * @var \SpiffyAdmin\Consumer\AbstractConsumer
+     */
+    protected $consumer;
+
+    /**
+     * @param AbstractDefinition $definition
+     * @return \SpiffyAdmin\Manager
+     */
+    public function addDefinition(AbstractDefinition $definition)
     {
-        $this->mapper      = $mapper;
-        $this->dataService = $dataService;
+        $this->definitions[$definition->getCanonicalName()] = $definition;
+        return $this;
     }
-    
-    public function save($name, $object)
+
+    /**
+     * @param $name
+     * @return \Zend\Form\Form
+     */
+    public function getForm($name)
     {
-        $this->mapper->save($this->getDefinition($name), $object);
+        return $this->formBuilder()->build($this->getDefinition($name));
     }
-    
-    public function getFormBuilder($name, $id = null)
+
+    /**
+     * @param \SpiffyAdmin\Provider\AbstractProvider $ds
+     * @return \SpiffyAdmin\Manager
+     */
+    public function setProvider(AbstractProvider $provider)
     {
-        if (!isset($this->forms[$name])) {
-            $def     = $this->getDefinition($name);
-            $opts    = $def->options();
-            $builder = $this->mapper->getFormBuilder($def);
-            
-            if (null === $id) {
-                $class = $opts->getDataClass();
-                $builder->setData(new $class);             
-            } else {
-                $builder->setData($this->getObject($name, $id));
-            }
-                 
-            // populate form fields
-            $elementOptions = $opts->getElementOptions();
-            $formProperties = $opts->getFormProperties();
-            foreach($def->getReflClass()->getDefaultProperties() as $name => $value) {
-                if ($formProperties && !in_array($name, $formProperties)) {
-                    continue;
-                }
-                
-                $options = array();
-                if (isset($elementOptions[$name])) {
-                    $options = $elementOptions[$name];
-                }
-                $builder->add($name, null, $options);
-            }
-             
-            $builder->add('submit');
-            $builder->add('cancel', 'submit', array(
-                'label' => 'Discard Changes'
-            ));
-            
-            $this->builders[$name] = $builder;
+        $this->provider = $provider;
+        return $this;
+    }
+
+    /**
+     * @return \SpiffyAdmin\Provider\AbstractProvider
+     */
+    public function provider()
+    {
+        return $this->provider;
+    }
+
+    /**
+     * @param \SpiffyAdmin\Consumer\AbstractConsumer $consumer
+     * @return \SpiffyAdmin\Manager
+     */
+    public function setConsumer(AbstractConsumer $consumer)
+    {
+        $this->consumer = $consumer;
+        return $this;
+    }
+
+    /**
+     * @return \SpiffyAdmin\Consumer\AbstractConsumer
+     */
+    public function consumer()
+    {
+        if (!$this->consumer->provider()) {
+            $this->consumer->setProvider($this->provider());
         }
-             
-        return $this->builders[$name];
+        return $this->consumer;
     }
-    
-    public function getObject($name, $id)
+
+    /**
+     * @param \SpiffyAdmin\FormBuilder\AbstractFormBuilder $formBuilder
+     * @return \SpiffyAdmin\Manager
+     */
+    public function setFormBuilder(AbstractFormBuilder $formBuilder)
     {
-        $def = $this->getDefinition($name);
-        
-        return $this->mapper->findById($def, $id);
+        $this->formBuilder = $formBuilder;
+        return $this;
     }
-    
-    public function getViewData($name)
+
+    /**
+     * @return \SpiffyAdmin\FormBuilder\AbstractFormBuilder
+     */
+    public function formBuilder()
     {
-        $def  = $this->getDefinition($name);
-        $opts = $def->options();
-        $data = $this->mapper->getViewData($def);
-        
-        if ($opts->getCanEdit()) {
-            $link  = $opts->getEditLink() ? $opts->getEditLink() : sprintf('/admin/%s/%%id%%/edit', $name);
-            $label = $opts->getEditLabel() ? $opts->getEditLabel() : 'Edit';
-             
-            $this->dataService->format($data, array(
-               'edit' => array(
-                    'type' => 'link',
-                    'options' => array(
-                        'label' => $label,
-                        'link' => $link
-                    )
-                )
-            ));
-        }
-        
-        if ($opts->getCanDelete()) {
-            $link  = $opts->getDeleteLink() ? $opts->getDeleteLink() : sprintf('/admin/%s/%%id%%/delete', $name);
-            $label = $opts->getDeleteLabel() ? $opts->getDeleteLabel() : 'Delete';
-            
-            $this->dataService->format($data, array(
-               'delete' => array(
-                    'type' => 'link',
-                    'options' => array(
-                        'label' => $label,
-                        'link' => $link
-                    )
-                )
-            ));
-        }
-        
-        return $data;
+        return $this->formBuilder;
     }
-    
+
+    /**
+     * @return array
+     */
+    public function getDefinitions()
+    {
+        return $this->definitions;
+    }
+
+    /**
+     * @param $name
+     * @return \SpiffyAdmin\Definition\AbstractDefinition
+     * @throws \InvalidArgumentException
+     */
     public function getDefinition($name)
     {
-        $definitions = $this->getDefinitions();
-        if (!isset($definitions[$name])) {
+        if (!isset($this->definitions[$name])) {
             throw new InvalidArgumentException(sprintf(
-                'Definition by the name "%s" could not be located',
+                'No definition with name "%s" could be found.',
                 $name
             ));
         }
-        
-        return $definitions[$name];
-    }
-    
-    public function getDefinitions()
-    {
-        if (null === $this->definitions) {
-            $this->setDefinitions();
-        }
-        return $this->definitions;
-    }
-    
-    public function setDefinitions(array $defs = array())
-    {
-        $definitions = array();
-        
-        foreach($defs as &$def) {
-            if (is_string($def)) {
-                $def = new $def;
-            }
-            
-            if (!is_object($def)) {
-                throw new InvalidArgumentException('object expected');
-            }
-            
-            if (!$def instanceof Definition) { 
-                throw new InvalidArgumentException(sprintf(
-                    'Definition must be an instance of SpiffyAdmin\Admin\Definition, got %s',
-                    get_class($def) 
-                ));
-            }
-
-            // verify options
-            if (!$def->options()->getDataClass()) {
-                throw new InvalidArgumentException('data_class is required');
-            }
-            
-            // set properties
-            $properties = count($def->options()->getViewProperties()) ? 
-                $def->options()->getViewProperties() : 
-                array_keys($def->getReflClass()->getDefaultProperties());
-                
-            foreach($properties as $name => $options) {
-                if (is_string($options)) {
-                    unset($properties[$name]);
-                    
-                    $name    = $options;
-                    $options = array();
-                }
-                
-                if (!isset($options['label'])) {
-                    $options['label'] = ucfirst($name);
-                }
-                $options['property'] = $name;
-                
-                $properties[$name] = $options;
-            }
-            
-            $def->options()->setViewProperties($properties);
-            $definitions[$def->getName()] = $def;
-        }
-        
-        $this->definitions = $definitions;
-        return $this;
+        return $this->definitions[$name];
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace SpiffyAdmin\Admin;
+namespace SpiffyAdmin\Definition;
 
-use Zend\Stdlib\Options;
+use Zend\Stdlib\Options as StdlibOptions;
 
-class DefinitionOptions extends Options
+class Options extends StdlibOptions
 {
     /**
      * @var string
@@ -19,12 +19,12 @@ class DefinitionOptions extends Options
     /**
      * @var boolean
      */
-    protected $canEdit;
+    protected $canEdit = true;
     
     /**
      * @var boolean
      */
-    protected $canDelete;
+    protected $canDelete = true;
     
     /**
      * @var array
@@ -34,18 +34,18 @@ class DefinitionOptions extends Options
     /**
      * @var array
      */
-    protected $viewProperties = array();
+    protected $consumerOptions = array();
     
     /**
      * @var array
      */
-    protected $formProperties = array();
-    
+    protected $formOptions = array();
+
     /**
-     * @var Closure
+     * @var array
      */
-    protected $viewClosure;
-    
+    protected $providerOptions = array();
+
     /**
      * @var string
      */
@@ -66,9 +66,12 @@ class DefinitionOptions extends Options
      */
     protected $deleteLabel;
 
+    /**
+     * @var string
+     */
+    protected $model;
+
 	/**
-     * Get dataClass
-     *
      * @return string
      */
     public function getDataClass()
@@ -77,10 +80,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set dataClass
-     *
      * @param string $dataClass
-     * @return SpiffyAdmin\Admin\DefinitionOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setDataClass($dataClass)
     {
@@ -89,8 +90,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get displayName
-     *
      * @return string
      */
     public function getDisplayName()
@@ -99,10 +98,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set displayName
-     *
      * @param string $displayName
-     * @return SpiffyAdmin\Admin\DefinitionOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setDisplayName($displayName)
     {
@@ -111,8 +108,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get canEdit
-     *
      * @return boolean
      */
     public function getCanEdit()
@@ -121,10 +116,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set canEdit
-     *
      * @param boolean $canEdit
-     * @return SpiffyAdmin\Admin\DefinitionOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setCanEdit($canEdit)
     {
@@ -133,8 +126,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get canDelete
-     *
      * @return boolean
      */
     public function getCanDelete()
@@ -143,10 +134,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set canDelete
-     *
      * @param boolean $canDelete
-     * @return SpiffyAdmin\Admin\DefinitionOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setCanDelete($canDelete)
     {
@@ -155,8 +144,6 @@ class DefinitionOptions extends Options
     }
 	
 	/**
-     * Get element options
-     *
      * @return array
      */
     public function getElementOptions()
@@ -165,10 +152,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set element options
-     *
      * @param array $elementOptions
-     * @return SpiffyAdmin\Admin\DefinitionOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setElementOptions(array $elementOptions)
     {
@@ -177,74 +162,42 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get viewProperties
-     *
      * @return array
      */
-    public function getViewProperties()
+    public function getConsumerOptions()
     {
-        return $this->viewProperties;
+        return $this->consumerOptions;
     }
 
 	/**
-     * Set viewProperties
-     *
-     * @param array $viewProperties
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @param array $consumerOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
-    public function setViewProperties($viewProperties)
+    public function setConsumerOptions($consumerOptions)
     {
-        $this->viewProperties = $viewProperties;
+        $this->consumerOptions = $consumerOptions;
         return $this;
     }
 
 	/**
-     * Get formProperties
-     *
      * @return array
      */
-    public function getFormProperties()
+    public function getFormOptions()
     {
-        return $this->formProperties;
+        return $this->formOptions;
     }
 
 	/**
-     * Set formProperties
-     *
-     * @param array $formProperties
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @param array $formOptions
+     * @return \SpiffyAdmin\Definition\Options
      */
-    public function setFormProperties($formProperties)
+    public function setFormOptions($formOptions)
     {
-        $this->formProperties = $formProperties;
+        $this->formOptions = $formOptions;
         return $this;
     }
 
 	/**
-     * Get viewClosure
-     *
-     * @return Closure
-     */
-    public function getViewClosure()
-    {
-        return $this->viewClosure;
-    }
-
-	/**
-     * Set viewClosure
-     *
-     * @param object $viewClosure
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
-     */
-    public function setViewClosure($viewClosure)
-    {
-        $this->viewClosure = $viewClosure;
-        return $this;
-    }
-
-	/**
-     * Get editLink
-     *
      * @return string
      */
     public function getEditLink()
@@ -253,10 +206,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set editLink
-     *
      * @param string $editLink
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setEditLink($editLink)
     {
@@ -265,8 +216,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get editLabel
-     *
      * @return string
      */
     public function getEditLabel()
@@ -275,10 +224,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set editLabel
-     *
      * @param string $editLabel
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setEditLabel($editLabel)
     {
@@ -287,8 +234,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get deleteLink
-     *
      * @return string
      */
     public function getDeleteLink()
@@ -297,10 +242,8 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set deleteLink
-     *
      * @param string $deleteLink
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setDeleteLink($deleteLink)
     {
@@ -309,8 +252,6 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Get deleteLabel
-     *
      * @return string
      */
     public function getDeleteLabel()
@@ -319,14 +260,48 @@ class DefinitionOptions extends Options
     }
 
 	/**
-     * Set deleteLabel
-     *
      * @param string $deleteLabel
-     * @return SpiffyAdmin\Admin\DefinitionOptions extends Options
+     * @return \SpiffyAdmin\Definition\Options
      */
     public function setDeleteLabel($deleteLabel)
     {
         $this->deleteLabel = $deleteLabel;
         return $this;
+    }
+
+    /**
+     * @param string $model
+     * @return \SpiffyAdmin\Definition\Options
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param $providerOptions
+     * @return \SpiffyAdmin\Definition\Options
+     */
+    public function setProviderOptions($providerOptions)
+    {
+        $this->providerOptions = $providerOptions;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProviderOptions()
+    {
+        return $this->providerOptions;
     }
 }

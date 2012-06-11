@@ -2,51 +2,43 @@
 
 namespace SpiffyAdmin;
 
-use Zend\Module\Consumer\AutoloaderProvider,
-    Zend\Module\Manager;
-
-class Module implements AutoloaderProvider
+class Module
 {
-    protected static $options;
-    
-    public function init(Manager $moduleManager)
+    public function getConfig()
     {
-        $moduleManager->events()->attach('loadModules.post', array($this, 'modulesLoaded'));
+        return include __DIR__ . '/config/module.config.php';
     }
-    
+
+    public function getServiceConfiguration()
+    {
+        return array(
+            'factories' => array(
+                'SpiffyAdmin\Consumer\DataTablesConsumer' => function($sm) {
+                    return new \SpiffyAdmin\Consumer\DataTablesConsumer;
+                },
+                'SpiffyAdmin\Provider\DoctrineEntityManager' => function($sm) {
+                    return new \SpiffyAdmin\Provider\DoctrineEntityManager(
+                        $sm->get('doctrine_orm_default_entitymanager')
+                    );
+                },
+                'SpiffyAdmin\FormBuilder\DoctrineEntity' => function($sm) {
+                    return new \SpiffyAdmin\FormBuilder\DoctrineEntity(
+                        $sm->get('doctrine_orm_default_entitymanager')
+                    );
+                },
+                'SpiffyAdmin\Manager' => 'SpiffyAdmin\Service\AdminManagerFactory'
+            )
+        );
+    }
+
     public function getAutoloaderConfig()
     {
         return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
-                __DIR__ . '/autoload_classmap.php',
-            ),
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
             ),
         );
-    }
-    
-    public function modulesLoaded($e)
-    {
-        $config = $e->getConfigListener()->getMergedConfig();
-        static::$options = $config['spiffyadmin'];
-    }
-
-    public function getConfig($env = null)
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
-    
-    /**
-     * @TODO: Come up with a better way of handling module settings/options
-     */
-    public static function getOption($option)
-    {
-        if (!isset(static::$options[$option])) {
-            return null;
-        }
-        return static::$options[$option];
     }
 }

@@ -1,0 +1,15 @@
+<a href="<?=$this->url('spiffyadmin/add', array('name' => $cName));?>" class="btn btn-primary">
+    Add <?php echo $this->escape($dName); ?>
+</a>
+
+<a href="<?=$this->url('spiffyadmin', array('name' => $cName));?>" class="btn">
+    Back to List
+</a>
+
+<?php
+echo $this->dataTable(
+    "{$cName}-datatable",
+    $source,
+    array('class' => 'spiffyadmin'),
+    array()
+);

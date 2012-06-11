@@ -1,0 +1,10 @@
+<?php
+echo '<ul class="model-list">';
+foreach($definitions as $definition) {
+    echo sprintf(
+        '<li><a href="%s">%s</a></li>',
+        $this->url('spiffyadmin/view', array('name' => $definition->getCanonicalName())),
+        $this->escape($definition->getDisplayName())
+    );
+}
+echo '</ul>';
