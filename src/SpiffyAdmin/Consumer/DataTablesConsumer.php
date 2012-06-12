@@ -29,15 +29,6 @@ class DataTablesConsumer extends AbstractConsumer
             $source->addColumn($attributes);
         }
 
-        // add edit/delete columns
-        if ($def->options()->getCanEdit()) {
-
-        }
-
-        if ($def->options()->getCanDelete()) {
-
-        }
-
         return $source;
     }
 }

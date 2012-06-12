@@ -32,6 +32,10 @@ class DoctrineEntity extends DoctrineObject
         $formData = $definition->options()->getFormOptions();
         $form     = new Form;
 
+        if (!isset($formData['elements'])) {
+            throw new InvalidArgumentException('DoctrineEntity builder needs elements to work on');
+        }
+
         foreach($formData['elements'] as $field => $attributes) {
             if (is_int($field)) {
                 $field      = $attributes;
@@ -39,9 +43,10 @@ class DoctrineEntity extends DoctrineObject
             }
             $detected = array();
 
+            $type = 'string';
             if ($metadata->hasField($field)) {
-                $fdata            = $metadata->getFieldMapping($field);
-                $detected['type'] = $fdata['type'];
+                $fdata = $metadata->getFieldMapping($field);
+                $type  = $fdata['type'];
             } else if ($metadata->hasAssociation($field)) {
                 $fdata = $metadata->getAssociationMapping($field);
 
@@ -49,20 +54,19 @@ class DoctrineEntity extends DoctrineObject
                     $element = new DoctrineEntityElement($field);
                     $element->setEntityManager($this->om());
                     $element->setTargetClass($metadata->getAssociationTargetClass($field));
-
-                    $detected['type'] = get_class($element);
-
-                    $form->add($element);
-                    continue;
                 } else if ($fdata['type'] & ClassMetadataInfo::TO_MANY) {
                     // todo: implement
                 } else {
                     throw new InvalidArgumentException('unexpected input');
                 }
+
+                $form->add($element);
+                continue;
             } else {
                 $fdata = array();
             }
 
+            $detected['type']     = isset($this->typeMap[$type]) ? $this->typeMap[$type] : 'text';
             $detected['required'] = !(isset($fdata['nullable']) && $fdata['nullable']);
 
             $attributes = array_merge($detected, $attributes);
