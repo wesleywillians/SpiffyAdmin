@@ -24,7 +24,7 @@ abstract class AbstractFormBuilder
     }
 
     /**
-     * @return \Zend\Stdlib\Hydrator\ClassMethods
+     * @return \Zend\Stdlib\Hydrator\HydratorInterface
      */
     public function getHydrator()
     {

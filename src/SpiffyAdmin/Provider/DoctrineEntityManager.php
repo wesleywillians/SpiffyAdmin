@@ -26,6 +26,17 @@ class DoctrineEntityManager extends DoctrineObjectManager
         return $items;
     }
 
+    /**
+     * @return \DoctrineORMModule\Hydrator\DoctrineEntity
+     */
+    protected function hydrator()
+    {
+        if (null === $this->hydrator) {
+            $this->hydrator = new \DoctrineORMModule\Hydrator\DoctrineEntity($this->om());
+        }
+        return $this->hydrator;
+    }
+
     protected function persist($object)
     {
         $metadata  = $this->om()->getClassMetadata(get_class($object));

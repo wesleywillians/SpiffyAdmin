@@ -5,6 +5,7 @@ namespace SpiffyAdmin\FormBuilder;
 use InvalidArgumentException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use DoctrineORMModule\Hydrator\DoctrineEntity as Hydrator;
 use DoctrineORMModule\Form\Element\DoctrineEntity as DoctrineEntityElement;
 use SpiffyAdmin\Definition\AbstractDefinition;
 use Zend\Form\Form;
@@ -25,6 +26,14 @@ class DoctrineEntity extends DoctrineObject
         'text'     => 'textarea',
     );
 
+    /**
+     * @return \DoctrineORMModule\Hydrator\DoctrineEntity
+     */
+    public function getHydrator()
+    {
+        return new Hydrator($this->om());
+    }
+
     public function getForm(AbstractDefinition $definition)
     {
         /** @var $metadata \Doctrine\ORM\Mapping\ClassMetadata */
@@ -41,6 +50,7 @@ class DoctrineEntity extends DoctrineObject
                 $field      = $attributes;
                 $attributes = array();
             }
+
             $detected = array();
 
             $type = 'string';
@@ -50,17 +60,21 @@ class DoctrineEntity extends DoctrineObject
             } else if ($metadata->hasAssociation($field)) {
                 $fdata = $metadata->getAssociationMapping($field);
 
+                $element = new DoctrineEntityElement($field);
+                $element->setEntityManager($this->om());
+                $element->setTargetClass($metadata->getAssociationTargetClass($field));
+
                 if ($fdata['type'] & ClassMetadataInfo::TO_ONE) {
-                    $element = new DoctrineEntityElement($field);
-                    $element->setEntityManager($this->om());
-                    $element->setTargetClass($metadata->getAssociationTargetClass($field));
+
                 } else if ($fdata['type'] & ClassMetadataInfo::TO_MANY) {
                     // todo: implement
                 } else {
                     throw new InvalidArgumentException('unexpected input');
                 }
 
+                $element->setAttributes($attributes);
                 $form->add($element);
+
                 continue;
             } else {
                 $fdata = array();

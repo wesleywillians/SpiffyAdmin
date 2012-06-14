@@ -18,12 +18,12 @@ class Module
                 },
                 'SpiffyAdmin\Provider\DoctrineEntityManager' => function($sm) {
                     return new \SpiffyAdmin\Provider\DoctrineEntityManager(
-                        $sm->get('doctrine_orm_default_entitymanager')
+                        $sm->get('doctrine.entitymanager.orm_default')
                     );
                 },
                 'SpiffyAdmin\FormBuilder\DoctrineEntity' => function($sm) {
                     return new \SpiffyAdmin\FormBuilder\DoctrineEntity(
-                        $sm->get('doctrine_orm_default_entitymanager')
+                        $sm->get('doctrine.entitymanager.orm_default')
                     );
                 },
                 'SpiffyAdmin\Manager' => 'SpiffyAdmin\Service\AdminManagerFactory'
