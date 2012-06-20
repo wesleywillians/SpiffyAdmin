@@ -28,7 +28,7 @@ class AdminController extends ActionController
 
             if ($form->isValid()) {
                 $this->manager()->provider()->create($form->getData());
-                return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getName()));
+                return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
             }
         }
 
@@ -55,7 +55,7 @@ class AdminController extends ActionController
 
             if ($form->isValid()) {
                 $this->manager()->provider()->create($form->getData());
-                return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getName()));
+                return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
             }
         }
 
@@ -72,7 +72,7 @@ class AdminController extends ActionController
         $model   = $def->options()->getEntityClass();
 
         $this->manager()->provider()->delete($this->manager()->provider()->find($model, $match->getParam('id')));
-        return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getName()));
+        return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
     }
     
     public function viewAction()
