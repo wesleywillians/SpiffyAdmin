@@ -9,7 +9,7 @@ class DoctrineEntityManager extends DoctrineObjectManager
     public function findAll(AbstractDefinition $def)
     {
         $options = $def->options()->getProviderOptions();
-        $or      = $this->om()->getRepository($def->options()->getModel());
+        $or      = $this->om()->getRepository($def->options()->getEntityClass());
 
         if (isset($options['query_builder'])) {
             $closure = $options['query_builder'];

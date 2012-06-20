@@ -21,7 +21,9 @@ abstract class AbstractDefinition
 
     public function getDisplayName()
     {
-        return $this->options()->getDisplayName() ? $this->options()->getDisplayName() : $this->options()->getModel();
+        return $this->options()->getDisplayName() ?
+                    $this->options()->getDisplayName() :
+                    $this->options()->getEntityClass();
     }
 
     public function options()
@@ -35,8 +37,8 @@ abstract class AbstractDefinition
 
     protected function validateOptions()
     {
-        if (!$this->options()->getModel()) {
-            throw new InvalidArgumentException('Options must contain a model to work on.');
+        if (!$this->options()->getEntityClass()) {
+            throw new InvalidArgumentException('Options must contain an entity class to work on.');
         }
     }
 }

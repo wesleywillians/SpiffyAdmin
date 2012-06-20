@@ -9,12 +9,12 @@ class Options extends StdlibOptions
     /**
      * @var string
      */
-    protected $dataClass;
-    
-    /**
-     * @var string
-     */
     protected $displayName;
+
+    /**
+     * @var \Zend\Stdlib\Hydrator\HydratorInterface
+     */
+    protected $hydrator;
     
     /**
      * @var boolean
@@ -69,25 +69,7 @@ class Options extends StdlibOptions
     /**
      * @var string
      */
-    protected $model;
-
-	/**
-     * @return string
-     */
-    public function getDataClass()
-    {
-        return $this->dataClass;
-    }
-
-	/**
-     * @param string $dataClass
-     * @return \SpiffyAdmin\Definition\Options
-     */
-    public function setDataClass($dataClass)
-    {
-        $this->dataClass = $dataClass;
-        return $this;
-    }
+    protected $entityClass;
 
 	/**
      * @return string
@@ -270,21 +252,21 @@ class Options extends StdlibOptions
     }
 
     /**
-     * @param string $model
+     * @param string $entityClass
      * @return \SpiffyAdmin\Definition\Options
      */
-    public function setModel($model)
+    public function setEntityClass($entityClass)
     {
-        $this->model = $model;
+        $this->entityClass = $entityClass;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getModel()
+    public function getEntityClass()
     {
-        return $this->model;
+        return $this->entityClass;
     }
 
     /**
@@ -303,5 +285,23 @@ class Options extends StdlibOptions
     public function getProviderOptions()
     {
         return $this->providerOptions;
+    }
+
+    /**
+     * @param \Zend\Stdlib\Hydrator\HydratorInterface $hydrator
+     * @return Options
+     */
+    public function setHydrator($hydrator)
+    {
+        $this->hydrator = $hydrator;
+        return $this;
+    }
+
+    /**
+     * @return \Zend\Stdlib\Hydrator\HydratorInterface
+     */
+    public function getHydrator()
+    {
+        return $this->hydrator;
     }
 }

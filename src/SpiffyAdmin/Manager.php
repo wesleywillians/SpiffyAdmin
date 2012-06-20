@@ -5,9 +5,9 @@ namespace SpiffyAdmin;
 use InvalidArgumentException;
 use SpiffyAdmin\Consumer\AbstractConsumer;
 use SpiffyAdmin\Definition\AbstractDefinition;
-use SpiffyAdmin\FormBuilder\AbstractFormBuilder;
 use SpiffyAdmin\Provider\AbstractProvider;
 use Zend\InputFilter\InputFilter;
+use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Form\Form;
 
 class Manager
@@ -18,7 +18,7 @@ class Manager
     protected $definitions = array();
 
     /**
-     * @var \SpiffyAdmin\FormBuilder\AbstractFormBuilder
+     * @var \Zend\Form\Annotation\AnnotationBuilder
      */
     protected $formBuilder;
 
@@ -28,9 +28,27 @@ class Manager
     protected $provider;
 
     /**
+     * @var \SpiffyAdmin\Service\ManagerOptions
+     */
+    protected $options;
+
+    /**
      * @var \SpiffyAdmin\Consumer\AbstractConsumer
      */
     protected $consumer;
+
+    public function __construct(array $options = array())
+    {
+        $this->options = new Service\ManagerOptions($options);
+    }
+
+    /**
+     * @return Service\ManagerOptions
+     */
+    public function options()
+    {
+        return $this->options;
+    }
 
     /**
      * @param AbstractDefinition $definition
@@ -43,12 +61,42 @@ class Manager
     }
 
     /**
-     * @param $name
+     * @param string $name
+     * @param object $entity
      * @return \Zend\Form\Form
      */
-    public function getForm($name)
+    public function getForm($name, $entity = null)
     {
-        return $this->formBuilder()->build($this->getDefinition($name));
+        $builder     = $this->getFormBuilder();
+        $definition  = $this->getDefinition($name);
+        $entityClass = $definition->options()->getEntityClass();
+
+        if (null === $entity) {
+            $entity = new $entityClass;
+        }
+
+        if (get_class($entity) !== $entityClass) {
+            throw new InvalidArgumentException(sprintf(
+                'Entity class "%s" expected, received "%s"',
+                $entityClass,
+                get_class($entity)
+            ));
+        }
+
+        $form = $builder->createForm($entity);
+
+        if ($hydrator = $definition->options()->getHydrator()) {
+            $form->setHydrator($hydrator);
+        }
+
+        $form->add(array(
+            'name' => 'submit',
+            'attributes' => array(
+                'type' => 'submit'
+            )
+        ));
+
+        return $form;
     }
 
     /**
@@ -91,19 +139,23 @@ class Manager
     }
 
     /**
-     * @param \SpiffyAdmin\FormBuilder\AbstractFormBuilder $formBuilder
+     * Set the form builder.
+     *
+     * @param \Zend\Form\Annotation\AnnotationBuilder $formBuilder
      * @return \SpiffyAdmin\Manager
      */
-    public function setFormBuilder(AbstractFormBuilder $formBuilder)
+    public function setFormBuilder(AnnotationBuilder $formBuilder)
     {
         $this->formBuilder = $formBuilder;
         return $this;
     }
 
     /**
-     * @return \SpiffyAdmin\FormBuilder\AbstractFormBuilder
+     * Get the form builder.
+     *
+     * @return \Zend\Form\Annotation\AnnotationBuilder
      */
-    public function formBuilder()
+    public function getFormBuilder()
     {
         return $this->formBuilder;
     }

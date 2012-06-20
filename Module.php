@@ -13,20 +13,12 @@ class Module
     {
         return array(
             'factories' => array(
-                'SpiffyAdmin\Consumer\DataTablesConsumer' => function($sm) {
-                    return new \SpiffyAdmin\Consumer\DataTablesConsumer;
-                },
                 'SpiffyAdmin\Provider\DoctrineEntityManager' => function($sm) {
                     return new \SpiffyAdmin\Provider\DoctrineEntityManager(
                         $sm->get('doctrine.entitymanager.orm_default')
                     );
                 },
-                'SpiffyAdmin\FormBuilder\DoctrineEntity' => function($sm) {
-                    return new \SpiffyAdmin\FormBuilder\DoctrineEntity(
-                        $sm->get('doctrine.entitymanager.orm_default')
-                    );
-                },
-                'SpiffyAdmin\Manager' => 'SpiffyAdmin\Service\AdminManagerFactory'
+                'SpiffyAdmin\Manager' => 'SpiffyAdmin\Service\ManagerFactory'
             )
         );
     }

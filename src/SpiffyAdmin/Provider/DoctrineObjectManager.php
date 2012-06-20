@@ -48,7 +48,7 @@ abstract class DoctrineObjectManager extends AbstractProvider
 
     public function findAll(AbstractDefinition $def)
     {
-        $or    = $this->om()->getRepository($def->options()->getModel());
+        $or    = $this->om()->getRepository($def->options()->getEntityClass());
         $items = $or->findAll();
 
         foreach($items as $key => $item) {

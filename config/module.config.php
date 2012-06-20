@@ -1,11 +1,7 @@
 <?php
 return array(
     'spiffyadmin' => array(
-        'form_builder' => 'SpiffyAdmin\FormBuilder\DoctrineEntity',
-        'consumer'     => 'SpiffyAdmin\Consumer\DataTablesConsumer',
-        'provider'     => 'SpiffyAdmin\Provider\DoctrineEntityManager',
-        'definitions'  => array(
-        )
+        'definitions'  => array()
     ),
 
     'controller' => array(

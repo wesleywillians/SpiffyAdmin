@@ -19,7 +19,7 @@ class AdminController extends ActionController
         $request = $this->getRequest();
         $form    = $this->manager()->getForm($name);
         $def     = $this->manager()->getDefinition($name);
-        $model   = $def->options()->getModel();
+        $model   = $def->options()->getEntityClass();
 
         $form->bind(new $model);
 
@@ -46,7 +46,7 @@ class AdminController extends ActionController
         $request = $this->getRequest();
         $form    = $this->manager()->getForm($name);
         $def     = $this->manager()->getDefinition($name);
-        $model   = $def->options()->getModel();
+        $model   = $def->options()->getEntityClass();
 
         $form->bind($this->manager()->provider()->find($model, $id));
 
@@ -69,7 +69,7 @@ class AdminController extends ActionController
     {
         $match   = $this->getEvent()->getRouteMatch();
         $def     = $this->manager()->getDefinition($match->getParam('name'));
-        $model   = $def->options()->getModel();
+        $model   = $def->options()->getEntityClass();
 
         $this->manager()->provider()->delete($this->manager()->provider()->find($model, $match->getParam('id')));
         return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getName()));
