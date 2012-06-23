@@ -5,10 +5,9 @@ namespace SpiffyAdmin;
 use InvalidArgumentException;
 use SpiffyAdmin\Consumer\AbstractConsumer;
 use SpiffyAdmin\Definition\AbstractDefinition;
-use SpiffyAdmin\Provider\AbstractProvider;
+use SpiffyAdmin\Mapper\AbstractMapper;
 use Zend\InputFilter\InputFilter;
 use Zend\Form\Annotation\AnnotationBuilder;
-use Zend\Form\Form;
 
 class Manager
 {
@@ -18,14 +17,14 @@ class Manager
     protected $definitions = array();
 
     /**
-     * @var \Zend\Form\Annotation\AnnotationBuilder
+     * @var AnnotationBuilder
      */
     protected $formBuilder;
 
     /**
-     * @var \SpiffyAdmin\Provider\AbstractProvider
+     * @var AbstractMapper
      */
-    protected $provider;
+    protected $mapper;
 
     /**
      * @var \SpiffyAdmin\Service\ManagerOptions
@@ -33,7 +32,7 @@ class Manager
     protected $options;
 
     /**
-     * @var \SpiffyAdmin\Consumer\AbstractConsumer
+     * @var AbstractConsumer
      */
     protected $consumer;
 
@@ -52,7 +51,7 @@ class Manager
 
     /**
      * @param AbstractDefinition $definition
-     * @return \SpiffyAdmin\Manager
+     * @return Manager
      */
     public function addDefinition(AbstractDefinition $definition)
     {
@@ -62,28 +61,28 @@ class Manager
 
     /**
      * @param string $name
-     * @param object $entity
+     * @param object $input
      * @return \Zend\Form\Form
      */
-    public function getForm($name, $entity = null)
+    public function getForm($name, $input = null)
     {
         $builder     = $this->getFormBuilder();
         $definition  = $this->getDefinition($name);
         $entityClass = $definition->options()->getEntityClass();
 
-        if (null === $entity) {
-            $entity = new $entityClass;
+        if (null === $input) {
+            $input = new $entityClass;
         }
 
-        if (get_class($entity) !== $entityClass) {
+        if (get_class($input) !== $entityClass) {
             throw new InvalidArgumentException(sprintf(
                 'Entity class "%s" expected, received "%s"',
                 $entityClass,
-                get_class($entity)
+                get_class($input)
             ));
         }
 
-        $form = $builder->createForm($entity);
+        $form = $builder->createForm($entityClass);
 
         if ($hydrator = $definition->options()->getHydrator()) {
             $form->setHydrator($hydrator);
@@ -100,21 +99,21 @@ class Manager
     }
 
     /**
-     * @param \SpiffyAdmin\Provider\AbstractProvider $ds
+     * @param \SpiffyAdmin\Mapper\AbstractMapper $ds
      * @return \SpiffyAdmin\Manager
      */
-    public function setProvider(AbstractProvider $provider)
+    public function setMapper(AbstractMapper $mapper)
     {
-        $this->provider = $provider;
+        $this->mapper = $mapper;
         return $this;
     }
 
     /**
-     * @return \SpiffyAdmin\Provider\AbstractProvider
+     * @return \SpiffyAdmin\Mapper\AbstractMapper
      */
-    public function provider()
+    public function mapper()
     {
-        return $this->provider;
+        return $this->mapper;
     }
 
     /**
@@ -132,8 +131,8 @@ class Manager
      */
     public function consumer()
     {
-        if (!$this->consumer->provider()) {
-            $this->consumer->setProvider($this->provider());
+        if (!$this->consumer->mapper()) {
+            $this->consumer->setMapper($this->mapper());
         }
         return $this->consumer;
     }

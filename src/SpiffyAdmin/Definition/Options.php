@@ -44,7 +44,7 @@ class Options extends StdlibOptions
     /**
      * @var array
      */
-    protected $providerOptions = array();
+    protected $mapperOptions = array();
 
     /**
      * @var string
@@ -270,21 +270,21 @@ class Options extends StdlibOptions
     }
 
     /**
-     * @param $providerOptions
+     * @param $mapperOptions
      * @return \SpiffyAdmin\Definition\Options
      */
-    public function setProviderOptions($providerOptions)
+    public function setMapperOptions($mapperOptions)
     {
-        $this->providerOptions = $providerOptions;
+        $this->mapperOptions = $mapperOptions;
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getProviderOptions()
+    public function getMapperOptions()
     {
-        return $this->providerOptions;
+        return $this->mapperOptions;
     }
 
     /**
@@ -302,6 +302,9 @@ class Options extends StdlibOptions
      */
     public function getHydrator()
     {
+        if (null === $this->hydrator) {
+            $this->hydrator = new \Zend\Stdlib\Hydrator\ObjectProperty;
+        }
         return $this->hydrator;
     }
 }

@@ -15,12 +15,12 @@ class ManagerOptions extends Options
     protected $consumer = 'SpiffyAdmin\Consumer\DataTablesConsumer';
 
     /**
-     * The name of the provider to instantiate or pull from the
+     * The name of the mapper to instantiate or pull from the
      * service manager.
      *
      * @var string
      */
-    protected $provider = 'SpiffyAdmin\Provider\DoctrineEntityManager';
+    protected $mapper = 'SpiffyAdmin\Mapper\ZendDb';
 
     /**
      * The name of the form builder to instantiate or pull from the
@@ -93,20 +93,20 @@ class ManagerOptions extends Options
     }
 
     /**
-     * @param string $provider
+     * @param string $mapper
      * @return ManagerOptions
      */
-    public function setProvider($provider)
+    public function setMapper($mapper)
     {
-        $this->provider = $provider;
+        $this->mapper = $mapper;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getProvider()
+    public function getMapper()
     {
-        return $this->provider;
+        return $this->mapper;
     }
 }

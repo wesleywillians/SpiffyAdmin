@@ -4,6 +4,7 @@ namespace SpiffyAdmin\Service;
 
 use InvalidArgumentException;
 use SpiffyAdmin\Definition\AbstractDefinition;
+use SpiffyAdmin\Manager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -12,7 +13,7 @@ class ManagerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $sl)
     {
         $config  = $sl->get('Configuration');
-        $manager = new \SpiffyAdmin\Manager($config['spiffyadmin']);
+        $manager = new Manager($config['spiffyadmin']);
 
         $consumer = $manager->options()->getConsumer();
         if ($sl->has($consumer)) {
@@ -22,13 +23,13 @@ class ManagerFactory implements FactoryInterface
         }
         $manager->setConsumer($consumer);
 
-        $provider = $manager->options()->getProvider();
-        if ($sl->has($provider)) {
-            $provider = $sl->get($provider);
+        $mapper = $manager->options()->getMapper();
+        if ($sl->has($mapper)) {
+            $mapper = $sl->get($mapper);
         } else {
-            $provider = new $provider;
+            $mapper = new $mapper;
         }
-        $manager->setProvider($provider);
+        $manager->setMapper($mapper);
 
         $builder = $manager->options()->getFormBuilder();
         if ($sl->has($builder)) {

@@ -74,7 +74,7 @@ Example Definition
                         )
                     )
                 ),
-                'provider_options' => array(
+                'mapper_options' => array(
                     'query_builder' => function($er) {
                         $qb = $er->createQueryBuilder('profile');
                         $qb->select('partial profile.{id, name}')

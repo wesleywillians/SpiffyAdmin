@@ -13,9 +13,9 @@ class Module
     {
         return array(
             'factories' => array(
-                'SpiffyAdmin\Provider\DoctrineEntityManager' => function($sm) {
-                    return new \SpiffyAdmin\Provider\DoctrineEntityManager(
-                        $sm->get('doctrine.entitymanager.orm_default')
+                'SpiffyAdmin\Mapper\ZendDb' => function($sm) {
+                    return new \SpiffyAdmin\Mapper\ZendDb(
+                        $sm->get('Zend\Db\Adapter\Adapter')
                     );
                 },
                 'SpiffyAdmin\Manager' => 'SpiffyAdmin\Service\ManagerFactory'

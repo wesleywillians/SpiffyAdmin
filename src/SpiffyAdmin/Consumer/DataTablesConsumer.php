@@ -11,7 +11,7 @@ class DataTablesConsumer extends AbstractConsumer
     public function getOutput(AbstractDefinition $def)
     {
         $options = $def->options()->getConsumerOptions();
-        $data    = $this->provider()->findAll($def);
+        $data    = $this->mapper()->findAll($def);
         $source  = new Source($data);
 
         if (!isset($options['columns']) || empty($options['columns'])) {

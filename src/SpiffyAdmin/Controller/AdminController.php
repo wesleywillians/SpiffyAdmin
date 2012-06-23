@@ -15,19 +15,18 @@ class AdminController extends ActionController
     public function addAction()
     {
         $match   = $this->getEvent()->getRouteMatch();
-        $name    = $match->getParam('name');
         $request = $this->getRequest();
-        $form    = $this->manager()->getForm($name);
-        $def     = $this->manager()->getDefinition($name);
-        $model   = $def->options()->getEntityClass();
+        $form    = $this->manager()->getForm($this->params('name'));
+        $def     = $this->manager()->getDefinition($this->params('name'));
+        $entity  = $def->getFormClass();
 
-        $form->bind(new $model);
+        $form->bind(new $entity);
 
         if ($request->isPost()) {
             $form->setData($request->post());
 
             if ($form->isValid()) {
-                $this->manager()->provider()->create($form->getData());
+                $this->manager()->mapper()->create($def, $form->getData());
                 return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
             }
         }
@@ -40,21 +39,18 @@ class AdminController extends ActionController
 
     public function editAction()
     {
-        $match   = $this->getEvent()->getRouteMatch();
-        $name    = $match->getParam('name');
-        $id      = $match->getParam('id');
         $request = $this->getRequest();
-        $form    = $this->manager()->getForm($name);
-        $def     = $this->manager()->getDefinition($name);
-        $model   = $def->options()->getEntityClass();
+        $form    = $this->manager()->getForm($this->params('name'));
+        $def     = $this->manager()->getDefinition($this->params('name'));
+        $entity  = $this->manager()->mapper()->find($def, $this->params('id'));
 
-        $form->bind($this->manager()->provider()->find($model, $id));
+        $form->bind($entity);
 
         if ($request->isPost()) {
             $form->setData($request->post());
 
             if ($form->isValid()) {
-                $this->manager()->provider()->create($form->getData());
+                $this->manager()->mapper()->update($def, $form->getData(), $this->params('id'));
                 return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
             }
         }
@@ -67,18 +63,16 @@ class AdminController extends ActionController
 
     public function deleteAction()
     {
-        $match   = $this->getEvent()->getRouteMatch();
-        $def     = $this->manager()->getDefinition($match->getParam('name'));
-        $model   = $def->options()->getEntityClass();
+        $match  = $this->getEvent()->getRouteMatch();
+        $def    = $this->manager()->getDefinition($match->getParam('name'));
 
-        $this->manager()->provider()->delete($this->manager()->provider()->find($model, $match->getParam('id')));
+        $this->manager()->mapper()->delete($def, $this->params('id'));
         return $this->redirect()->toRoute('spiffyadmin/view', array('name' => $def->getCanonicalName()));
     }
     
     public function viewAction()
     {
-        $name = $this->getEvent()->getRouteMatch()->getParam('name');
-        $def  = $this->manager()->getDefinition($name);
+        $def  = $this->manager()->getDefinition($this->params('name'));
 
         return array(
             'dName'  => $def->getDisplayName(),

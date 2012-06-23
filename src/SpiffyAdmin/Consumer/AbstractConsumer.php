@@ -7,19 +7,19 @@ use SpiffyAdmin\Definition\AbstractDefinition;
 abstract class AbstractConsumer
 {
     /**
-     * @var \SpiffyAdmin\Provider\AbstractProvider
+     * @var \SpiffyAdmin\Mapper\AbstractMapper
      */
-    protected $provider;
+    protected $mapper;
 
-    public function setProvider($provider)
+    public function setMapper($mapper)
     {
-        $this->provider = $provider;
+        $this->mapper = $mapper;
         return $this;
     }
 
-    public function provider()
+    public function mapper()
     {
-        return $this->provider;
+        return $this->mapper;
     }
 
     abstract public function getOutput(AbstractDefinition $definition);
