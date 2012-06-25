@@ -15,6 +15,11 @@ class ManagerFactory implements FactoryInterface
         $config  = $sl->get('Configuration');
         $manager = new Manager($config['spiffyadmin']);
 
+        return $this->setupManager($sl, $manager);
+    }
+
+    protected function setupManager(ServiceLocatorInterface $sl, Manager $manager)
+    {
         $consumer = $manager->options()->getConsumer();
         if ($sl->has($consumer)) {
             $consumer = $sl->get($consumer);
