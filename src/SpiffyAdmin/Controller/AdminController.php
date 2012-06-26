@@ -18,7 +18,7 @@ class AdminController extends ActionController
         $request = $this->getRequest();
         $form    = $this->manager()->getForm($this->params('name'));
         $def     = $this->manager()->getDefinition($this->params('name'));
-        $entity  = $def->getFormClass();
+        $entity  = $def->options()->getEntityClass();
 
         $form->bind(new $entity);
 
