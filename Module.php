@@ -13,6 +13,11 @@ class Module
     {
         return array(
             'factories' => array(
+                'SpiffyAdmin\Mapper\DoctrineDbal' => function($sm) {
+                    return new \SpiffyAdmin\Mapper\DoctrineDbal(
+                        $sm->get('doctrine.connection.orm_default')
+                    );
+                },
                 'SpiffyAdmin\Mapper\ZendDb' => function($sm) {
                     return new \SpiffyAdmin\Mapper\ZendDb(
                         $sm->get('Zend\Db\Adapter\Adapter')
