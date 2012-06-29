@@ -2,9 +2,9 @@
 
 namespace SpiffyAdmin\Mapper;
 
-use Zend\Stdlib\Options;
+use Zend\Stdlib\AbstractOptions;
 
-class ZendDbOptions extends Options
+class ZendDbOptions extends AbstractOptions
 {
     /**
      * The table to work on.

@@ -2,7 +2,7 @@
 
 namespace SpiffyAdmin\Definition;
 
-use Zend\Stdlib\Options as StdlibOptions;
+use Zend\Stdlib\AbstractOptions as StdlibOptions;
 
 class Options extends StdlibOptions
 {

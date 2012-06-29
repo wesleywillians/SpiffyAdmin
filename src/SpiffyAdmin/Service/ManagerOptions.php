@@ -2,9 +2,9 @@
 
 namespace SpiffyAdmin\Service;
 
-use Zend\Stdlib\Options;
+use Zend\Stdlib\AbstractOptions;
 
-class ManagerOptions extends Options
+class ManagerOptions extends AbstractOptions
 {
     /**
      * The name of the consumer to instantiate or pull from the
